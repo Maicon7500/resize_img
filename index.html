@@ -163,11 +163,15 @@
                 img.onload = function() {
                     canvas.width = width;
                     canvas.height = height;
+                    ctx.clearRect(0, 0, width, height);
                     
-                    ctx.imageSmoothingEnabled = true;
-                    ctx.imageSmoothingQuality = "high";
+                    const scale = Math.min(width / img.width, height / img.height);
+                    const newWidth = img.width * scale;
+                    const newHeight = img.height * scale;
+                    const offsetX = (width - newWidth) / 2;
+                    const offsetY = (height - newHeight) / 2;
                     
-                    ctx.drawImage(img, 0, 0, width, height);
+                    ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
                     
                     const resizedPreview = document.getElementById("resized-preview");
                     resizedPreview.src = canvas.toDataURL("image/png");
