@@ -71,11 +71,13 @@
             margin-top: 20px;
         }
         .preview {
-            max-width: 300px;
-            max-height: 300px;
+            width: 300px;
+            height: 300px;
             border: 2px solid #1976d2;
             padding: 5px;
             background: white;
+            object-fit: contain;
+            display: none;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
         }
@@ -85,7 +87,7 @@
     </style>
 </head>
 <body>
-    <h2>Upload e Redimensionamento de Imagem</h2>
+    <h2>Upload e Redimensionamento de Imagem (Fix)</h2>
     <label for="upload" class="file-label">Selecionar Arquivo</label>
     <input type="file" id="upload" accept="image/*" onchange="showPreview()">
     <br>
@@ -106,11 +108,11 @@
     <div class="preview-container">
         <div>
             <p>Imagem Original</p>
-            <img id="original-preview" class="preview" style="display: none;">
+            <img id="original-preview" class="preview">
         </div>
         <div>
             <p>Imagem Redimensionada</p>
-            <img id="resized-preview" class="preview" style="display: none;">
+            <img id="resized-preview" class="preview">
         </div>
     </div>
     
