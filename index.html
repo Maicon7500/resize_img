@@ -116,7 +116,7 @@
     
     <canvas id="canvas" style="display: none;"></canvas>
     <br>
-    <a id="download" style="display: none;" href="#" onclick="return false;">Baixar Imagem</a>
+    <a id="download" style="display: none;" href="#" rel="noopener noreferrer">Baixar Imagem</a>
 
     <script>
         document.getElementById("preset-sizes").addEventListener("change", function() {
@@ -174,10 +174,13 @@
                     resizedPreview.style.display = "block";
                     setTimeout(() => resizedPreview.classList.add("show"), 50);
                     
-                    const downloadLink = document.getElementById("download");
-                    downloadLink.href = canvas.toDataURL("image/png");
-                    downloadLink.download = "imagem_redimensionada.png";
-                    downloadLink.style.display = "inline-block";
+                    canvas.toBlob(function(blob) {
+                        const url = URL.createObjectURL(blob);
+                        const downloadLink = document.getElementById("download");
+                        downloadLink.href = url;
+                        downloadLink.download = "imagem_redimensionada.png";
+                        downloadLink.style.display = "inline-block";
+                    }, "image/png");
                 };
                 img.src = event.target.result;
             };
