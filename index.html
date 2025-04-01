@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redimensionador de Imagem</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #e3f2fd;
+        }
+        h2 {
+            color: #0d47a1;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .file-label {
+            background-color: #1976d2;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+            display: inline-block;
+        }
+        .file-label:hover {
+            background-color: #1565c0;
+            transform: scale(1.05);
+        }
+        select, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+            padding: 12px 24px;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: scale(1.05);
+        }
+        #download {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            background-color: #0d47a1;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        #download:hover {
+            background-color: #0b3c8a;
+            transform: scale(1.05);
+        }
+        .preview-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .preview {
+            max-width: 300px;
+            max-height: 300px;
+            border: 2px solid #1976d2;
+            padding: 5px;
+            background: white;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .preview.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <h2>Upload e Redimensionamento de Imagem</h2>
+    <label for="upload" class="file-label">Selecionar Arquivo</label>
+    <input type="file" id="upload" accept="image/*" onchange="showPreview()">
+    <br>
+    <label>Escolha um tamanho:</label>
+    <select id="preset-sizes">
+        <option value="1080x1920">1080x1920</option>
+        <option value="800x600">800x600</option>
+        <option value="custom">Personalizado</option>
+    </select>
+    <br>
+    <div id="custom-size" style="display: none;">
+        Largura: <input type="number" id="custom-width" min="1"> px
+        Altura: <input type="number" id="custom-height" min="1"> px
+    </div>
+    <br>
+    <button onclick="resizeImage()">Redimensionar</button>
+    
+    <div class="preview-container">
+        <div>
+            <p>Imagem Original</p>
+            <img id="original-preview" class="preview" style="display: none;">
+        </div>
+        <div>
+            <p>Imagem Redimensionada</p>
+            <img id="resized-preview" class="preview" style="display: none;">
+        </div>
+    </div>
+    
+    <canvas id="canvas" style="display: none;"></canvas>
+    <br>
+    <a id="download" style="display: none;" href="#" onclick="return false;">Baixar Imagem</a>
+
+    <script>
+        document.getElementById("preset-sizes").addEventListener("change", function() {
+            document.getElementById("custom-size").style.display = this.value === "custom" ? "block" : "none";
+        });
+
+        function showPreview() {
+            const fileInput = document.getElementById("upload");
+            const preview = document.getElementById("original-preview");
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                    setTimeout(() => preview.classList.add("show"), 50);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        function resizeImage() {
+            const fileInput = document.getElementById("upload");
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            const presetSize = document.getElementById("preset-sizes").value;
+            let width, height;
+
+            if (presetSize === "custom") {
+                width = parseInt(document.getElementById("custom-width").value);
+                height = parseInt(document.getElementById("custom-height").value);
+            } else {
+                [width, height] = presetSize.split("x").map(Number);
+            }
+
+            if (!fileInput.files.length) {
+                alert("Por favor, selecione uma imagem.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = "high";
+                    
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const resizedPreview = document.getElementById("resized-preview");
+                    resizedPreview.src = canvas.toDataURL("image/png");
+                    resizedPreview.style.display = "block";
+                    setTimeout(() => resizedPreview.classList.add("show"), 50);
+                    
+                    const downloadLink = document.getElementById("download");
+                    downloadLink.href = canvas.toDataURL("image/png");
+                    downloadLink.download = "imagem_redimensionada.png";
+                    downloadLink.style.display = "inline-block";
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
